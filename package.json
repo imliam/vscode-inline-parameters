@@ -1,5 +1,5 @@
 {
-  "name": "vscode-inline-parameters",
+  "name": "inline-parameters",
   "displayName": "Inline Parameters for VSCode",
   "description": "Function parameter annotations displaying inline in VSCode",
   "publisher": "liamhammett",
@@ -63,7 +63,11 @@
           "inline-parameters.parameterCase": {
             "type": "string",
             "description": "Forcibly change the case of the inline parameter name",
-            "enum": ["normal", "lowercase", "uppercase"],
+            "enum": [
+              "normal",
+              "lowercase",
+              "uppercase"
+            ],
             "default": "normal"
           },
           "inline-parameters.showVariadicNumbers": {
