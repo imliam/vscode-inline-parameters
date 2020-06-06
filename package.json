@@ -1,0 +1,156 @@
+{
+  "name": "vscode-inline-parameters",
+  "displayName": "Inline Parameters for VSCode",
+  "description": "Function parameter annotations displaying inline in VSCode",
+  "publisher": "liamhammett",
+  "icon": "./icon.png",
+  "version": "0.1.0",
+  "license": "MIT",
+  "homepage": "https://github.com/imliam/vscode-inline-parameters",
+  "bugs": {
+    "url": "https://github.com/imliam/vscode-inline-parameters/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imliam/vscode-inline-parameters"
+  },
+  "main": "./out/extension.js",
+  "engines": {
+    "vscode": "^1.40.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "inline-parameters.toggle",
+        "title": "Inline Parameters: Hide / Show"
+      }
+    ],
+    "configuration": [
+      {
+        "title": "Inline Parameters",
+        "properties": {
+          "inline-parameters.enabled": {
+            "type": "boolean",
+            "description": "Show inline parameters",
+            "default": true
+          },
+          "inline-parameters.leadingCharacters": {
+            "type": "string",
+            "description": "Characters to be shown before each parameter annotation",
+            "default": " "
+          },
+          "inline-parameters.trailingCharacters": {
+            "type": "string",
+            "description": "Characters to be shown after each parameter annotation",
+            "default": ": "
+          },
+          "inline-parameters.showPhpDollar": {
+            "type": "boolean",
+            "description": "Show the $ character before PHP parameter names",
+            "default": false
+          },
+          "inline-parameters.hideSingleParameters": {
+            "type": "boolean",
+            "description": "Hide inline parameters if a function only has 1 parameter",
+            "default": false
+          },
+          "inline-parameters.parameterCase": {
+            "type": "string",
+            "description": "Forcibly change the case of the inline parameter name",
+            "enum": ["normal", "lowercase", "uppercase"],
+            "default": "normal"
+          },
+          "inline-parameters.showVariadicNumbers": {
+            "type": "boolean",
+            "description": "Show the number of times a variadic parameter has been called",
+            "default": true
+          },
+          "inline-parameters.fontWeight": {
+            "type": "string",
+            "default": "400",
+            "enum": [
+              "100",
+              "200",
+              "300",
+              "400",
+              "500",
+              "600",
+              "700",
+              "800",
+              "900"
+            ],
+            "description": "Annotation styling of font-weight CSS property"
+          },
+          "inline-parameters.fontStyle": {
+            "type": "string",
+            "default": "italic",
+            "enum": [
+              "normal",
+              "italic"
+            ],
+            "description": "Annotation styling of font-style CSS property"
+          },
+          "inline-parameters.fontSize": {
+            "type": "number",
+            "default": 12,
+            "description": "Annotation styling of font size CSS property"
+          }
+        }
+      }
+    ],
+    "colors": [
+      {
+        "id": "inlineparameters.annotationForeground",
+        "description": "Specifies the foreground color for the annotations",
+        "defaults": {
+          "dark": "#adbec5",
+          "light": "#797a79",
+          "highContrast": "#adbec5"
+        }
+      },
+      {
+        "id": "inlineparameters.annotationBackground",
+        "description": "Specifies the background color for the annotations",
+        "defaults": {
+          "dark": "#1e2c31",
+          "light": "#f4f5f4",
+          "highContrast": "#1e2c31"
+        }
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "inline-parameters.toggle",
+        "key": "ctrl+k a",
+        "mac": "cmd+k a"
+      }
+    ]
+  },
+  "scripts": {
+    "preinstall": "mkdir -p ./node_modules && touch ./node_modules/.metadata_never_index",
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.2",
+    "@types/mocha": "^5.0.0",
+    "@types/node": "^12.12.44",
+    "@types/vscode": "^1.40.0",
+    "glob": "^7.1.5",
+    "mocha": "^6.2.2",
+    "typescript": "^3.9.5",
+    "vscode-test": "^1.2.2"
+  },
+  "dependencies": {
+    "babylon": "^7.0.0-beta.47",
+    "php-parser": "^3.0.0",
+    "recast": "^0.16.0"
+  }
+}
