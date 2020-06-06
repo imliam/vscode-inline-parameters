@@ -1,7 +1,7 @@
 # Inline Parameters for VSCode
 
 <p align="center">
-  <img src="icon.png" alt="Inline Parameters for VSCode">
+  <img src="https://raw.githubusercontent.com/imliam/vscode-inline-parameters/master/icon.png" alt="Inline Parameters for VSCode">
 </p>
 
 <p align="center">
@@ -15,7 +15,7 @@ An extension for Visual Studio Code that adds inline parameter annotations when 
 </p>
 
 <p align="center">
-  <img src="example.gif" alt="Example of extension">
+  <img src="https://raw.githubusercontent.com/imliam/vscode-inline-parameters/master/example.gif" alt="Example of extension">
 </p>
 
 This is a feature that was [popularised by JetBrains' IDEs](https://blog.jetbrains.com/phpstorm/2017/03/new-in-phpstorm-2017-1-parameter-hints/) that can give you additional context when reading your code, making it easier to understand what different function parameters refer to by showing the parameter's name inline.
