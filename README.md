@@ -1,21 +1,21 @@
 # Inline Parameters for VSCode
 
 <p align="center">
-![Logo](icon.png)
+  <img src="icon.png" alt="Inline Parameters for VSCode">
 </p>
 
 <p align="center">
-[![VS Marketplace Version](https://vsmarketplacebadge.apphb.com/version-short/liamhammett.inline-parameters.svg)](https://marketplace.visualstudio.com/items?itemName=liamhammett.inline-parameters)
-[![VS Marketplace Installs](https://vsmarketplacebadge.apphb.com/installs-short/liamhammett.inline-parameters.svg)](https://marketplace.visualstudio.com/items?itemName=liamhammett.inline-parameters)
-[![VS Marketplace Rating](https://vsmarketplacebadge.apphb.com/rating-short/liamhammett.inline-parameters.svg)](https://marketplace.visualstudio.com/items?itemName=liamhammett.inline-parameters)
+  <a href="https://marketplace.visualstudio.com/items?itemName=liamhammett.inline-parameters"><img src="https://vsmarketplacebadge.apphb.com/version-short/liamhammett.inline-parameters.svg" alt="VS Marketplace Version"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=liamhammett.inline-parameters"><img src="https://vsmarketplacebadge.apphb.com/installs-short/liamhammett.inline-parameters.svg" alt="VS Marketplace Installs"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=liamhammett.inline-parameters"><img src="https://vsmarketplacebadge.apphb.com/rating-short/liamhammett.inline-parameters.svg" alt="VS Marketplace Rating"></a>
 </p>
-
+  
 <p align="center">
 An extension for Visual Studio Code that adds inline parameter annotations when calling a function.
 </p>
 
 <p align="center">
-![Example](example.gif)
+  <img src="example.gif" alt="Example of extension">
 </p>
 
 This is a feature that was [popularised by JetBrains' IDEs](https://blog.jetbrains.com/phpstorm/2017/03/new-in-phpstorm-2017-1-parameter-hints/) that can give you additional context when reading your code, making it easier to understand what different function parameters refer to by showing the parameter's name inline.
