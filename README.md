@@ -50,7 +50,7 @@ The extension provides a handful of configuration settings you can use to custom
 | `inline-parameters.trailingCharacters`  | Characters to be shown after each parameter annotation | `": "` |
 | `inline-parameters.showPhpDollar`  | Show the $ character before PHP parameter names | `false` |
 | `inline-parameters.hideSingleParameters`  | Hide inline parameters if a function only has 1 parameter | `false` |
-| `inline-parameters.parameterCase`  | Forcibly change the case of the inline parameter name. Options are `normal`, `lowercase` or `uppercase` | `normal` |
+| `inline-parameters.parameterCase`  | Forcibly change the case of the inline parameter name. Options are `normal`, `lowercase` or `uppercase` | `"normal"` |
 | `inline-parameters.showVariadicNumbers`  | Show the number of times a variadic parameter has been called | `true` |
 | `inline-parameters.fontWeight` | Annotation styling of font-weight CSS property | `"400"` |
 | `inline-parameters.fontStyle` | Annotation styling of font-style CSS property | `"italic"` |
