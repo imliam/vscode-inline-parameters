@@ -1,6 +1,6 @@
 <?php
 
-function generator_range($start, $end, $step = 1)
+function generator_range(int $start, int $end, int $step = 1)
 {
     for ($i = $start; $i < $end; $i = $i + $step) {
         yield ($i);
@@ -27,10 +27,12 @@ function starts_with($haystack, $needles)
     return false;
 }
 
-starts_with('Foo', 'It uses the docblock name');
+starts_with('Foo', 'It uses the docblock name, not the actual parameter name');
+
+undefined_functions('will', 'have', 'no', 'parameter', 'names');
 
 function test(string $test) {}
-test('Foo');
+test('Functions called with a single parameter can have the annotations hidden by a setting');
 
 echo test('Annotations will be used in statements');
 
