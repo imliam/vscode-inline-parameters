@@ -1,82 +1,67 @@
 import * as vscode from 'vscode'
-import { removeShebang, ParameterPosition, showVariadicNumbers } from '../utils'
+import { removeShebang, ParameterPosition } from '../utils'
 
-const engine = require("php-parser")
-
-const parser = new engine({
-    parser: {
-        extractDoc: true,
-        php7: true,
-        locations: true,
-        suppressErrors: true,
-    },
-    ast: {
-        all_tokens: true,
-        withPositions: true,
-    },
-})
+const parser = require('luaparse')
 
 export function getParameterName(editor: vscode.TextEditor, position: vscode.Position, key: number, namedValue?: string) {
     return new Promise(async (resolve, reject) => {
-        let isVariadic = false
-        let parameters: any []
+        let definition: string = ''
+        let definitions: string[]
         const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, position)
         const shouldHideRedundantAnnotations = vscode.workspace.getConfiguration('inline-parameters').get('hideRedundantAnnotations')
+        const luaParameterNameRegex = /^[a-zA-Z_]([0-9a-zA-Z_]+)?/g
     
         if (description && description.length > 0) {
             try {
-                const regEx = /(?<=@param.+)(\.{3})?(\$[a-zA-Z0-9_]+)/g
-                parameters = description[0].contents[0].value.match(regEx)
+                const regEx = /^function\ .*\((.*)\)/gm
+                definitions = description[0].contents[0].value.match(regEx)
+
+                if (!definitions || !definitions[0]) {
+                    return reject()
+                }
+
+                definition = definitions[0]
             } catch (err) {
                 console.error(err)
             }
         }
 
-        if (!parameters) {
+
+        const parameters: string[] = definition
+            .substring(definition.indexOf('(') + 1, definition.lastIndexOf(')'))
+            .replace(/\[/g, '').replace(/\]/g, '')
+            .split(',')
+            .map(parameter => parameter.trim())
+            .map(parameter => {
+                const matches = parameter.match(luaParameterNameRegex)
+                if (!matches || !matches[0]) {
+                    return null
+                }
+
+                return matches[0]
+            })
+            .filter(parameter => parameter)
+
+        if (!parameters || !parameters[key]) {
             return reject()
         }
 
-        parameters = parameters.map((parameter: any) => {
-            if (parameter.startsWith('...')) {
-                isVariadic = true
-                parameter = parameter.slice(3)
-            }
+        let name = parameters[key]
 
-            return parameter
-        })
-
-        if (isVariadic && key >= parameters.length - 1) {
-            let name = parameters[parameters.length - 1]
-
-            if (shouldHideRedundantAnnotations && name.replace('$', '') === namedValue) {
-                return reject()
-            }
-
-            name = showDollar(name)
-            name = showVariadicNumbers(name, -parameters.length + 1 + key)
-
-            return resolve(name)
+        if (shouldHideRedundantAnnotations && name === namedValue) {
+            return reject()
         }
 
-        if (parameters[key]) {
-            let name = parameters[key]
-
-            if (shouldHideRedundantAnnotations && name.replace('$', '') === namedValue) {
-                return reject()
-            }
-
-            name = showDollar(name)
-
-            return resolve(name)
-        }
-    
-        return reject()
+        return resolve(name)
     })
 }
 
 export function parse(code: string): ParameterPosition[] {
-    code = removeShebang(code).replace("<?php", "")
-    const ast: any = parser.parseEval(code)
+    code = removeShebang(code)
+    const ast: any = parser.parse(code, {
+        comments: false,
+        locations: true,
+    })
     const functionCalls: any[] = crawlAst(ast)
     let parameters: ParameterPosition[] = []
 
@@ -87,16 +72,8 @@ export function parse(code: string): ParameterPosition[] {
     return parameters
 }
 
-function showDollar(str: string): string {
-    if (vscode.workspace.getConfiguration('inline-parameters').get('showPhpDollar')) {
-        return str
-    }
-
-    return str.replace('$', '')
-}
-
 function crawlAst(ast, functionCalls = []) {
-    const canAcceptArguments = ast.kind && (ast.kind === 'call' || ast.kind === 'new')
+    const canAcceptArguments = ast.type && ast.type === 'CallExpression'
     const hasArguments = ast.arguments && ast.arguments.length > 0
     const shouldHideArgumentNames = vscode.workspace.getConfiguration('inline-parameters').get('hideSingleParameters') && ast.arguments && ast.arguments.length === 1
 
@@ -105,6 +82,10 @@ function crawlAst(ast, functionCalls = []) {
     }
 
     for (const [key, value] of Object.entries(ast)) {
+        if (key === 'comments') {
+            continue
+        }
+
         if (value instanceof Object) {
             functionCalls = crawlAst(value, functionCalls)
         }
@@ -119,17 +100,11 @@ function getParametersFromExpression(expression: any, parameters: ParameterPosit
     }
 
     expression.arguments.forEach((argument: any, key: number) => {
-        if (!expression.what || (!expression.what.offset && !expression.what.loc)) {
-            return
-        }
-    
-        const expressionLoc = expression.what.offset ? expression.what.offset.loc.start : expression.what.loc.end
-
         parameters.push({
             namedValue: argument.name ?? null,
             expression: {
-                line: parseInt(expressionLoc.line) - 1,
-                character: parseInt(expressionLoc.column),
+                line: parseInt(expression.base.identifier.loc.start.line) - 1,
+                character: parseInt(expression.base.identifier.loc.start.column),
             },
             key: key,
             start: {

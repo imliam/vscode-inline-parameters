@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
 import * as phpDriver from './drivers/php'
+import * as luaDriver from './drivers/lua'
 import * as javascriptDriver from './drivers/javascript'
 import * as javascriptReactDriver from './drivers/javascriptreact'
 import * as typescriptDriver from './drivers/typescript'
@@ -102,6 +103,7 @@ async function updateDecorations(activeEditor, languageDrivers: Record<string, L
 export function activate(context: vscode.ExtensionContext) {
     const languageDrivers: Record<string, LanguageDriver> = {
         php: phpDriver,
+        lua: luaDriver,
         javascript: javascriptDriver,
         javascriptreact: javascriptReactDriver,
         typescript: typescriptDriver,

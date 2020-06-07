@@ -159,6 +159,9 @@
   },
   "dependencies": {
     "babylon": "^7.0.0-beta.47",
+    "install": "^0.13.0",
+    "luaparse": "^0.3.0",
+    "npm": "^6.14.5",
     "php-parser": "^3.0.0",
     "recast": "^0.16.0"
   }
