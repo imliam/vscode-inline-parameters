@@ -10,7 +10,7 @@ import { LanguageDriver, ParameterPosition } from './utils'
 
 const hintDecorationType = vscode.window.createTextEditorDecorationType({})
 
-async function updateDecorations(activeEditor, languageDrivers) {
+async function updateDecorations(activeEditor, languageDrivers: Record<string, LanguageDriver>) {
     if (!activeEditor) {
         return
     }
@@ -19,7 +19,7 @@ async function updateDecorations(activeEditor, languageDrivers) {
         return
     }
 
-    const driver = languageDrivers[activeEditor.document.languageId]
+    const driver: LanguageDriver = languageDrivers[activeEditor.document.languageId]
 
     const isEnabled = vscode.workspace.getConfiguration('inline-parameters').get('enabled')
 
@@ -101,7 +101,7 @@ async function updateDecorations(activeEditor, languageDrivers) {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-    const languageDrivers = {
+    const languageDrivers: Record<string, LanguageDriver> = {
         php: phpDriver,
         javascript: javascriptDriver,
         javascriptreact: javascriptReactDriver,
