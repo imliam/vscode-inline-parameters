@@ -8,7 +8,7 @@ const parser = new engine({
         extractDoc: true,
         php7: true,
         locations: true,
-        suppressErrors: false,
+        suppressErrors: true,
     },
     ast: {
         all_tokens: true,

@@ -34,7 +34,7 @@ async function updateDecorations(activeEditor, languageDrivers: Record<string, L
     try {
         languageParameters = driver.parse(code)
     } catch (err) {
-        console.error("Error parsing language's inline parameters", err)
+        // Error parsing language's AST, likely a syntax error on the user's side
     }
 
     if (languageParameters.length === 0) {
@@ -76,25 +76,24 @@ async function updateDecorations(activeEditor, languageDrivers: Record<string, L
             continue
         }
     
-            const leadingCharacters = vscode.workspace.getConfiguration('inline-parameters').get('leadingCharacters')
-            const trailingCharacters = vscode.workspace.getConfiguration('inline-parameters').get('trailingCharacters')
-            const parameterCase = vscode.workspace.getConfiguration('inline-parameters').get('parameterCase')
+        const leadingCharacters = vscode.workspace.getConfiguration('inline-parameters').get('leadingCharacters')
+        const trailingCharacters = vscode.workspace.getConfiguration('inline-parameters').get('trailingCharacters')
+        const parameterCase = vscode.workspace.getConfiguration('inline-parameters').get('parameterCase')
 
-            if (parameterCase === 'uppercase') {
-                parameterName = parameterName.toUpperCase()
-            }
-
-            if (parameterCase === 'lowercase') {
-                parameterName = parameterName.toLowerCase()
-            }
-
-            const annotation = Annotations.parameterAnnotation(
-                leadingCharacters + parameterName + trailingCharacters,
-                new vscode.Range(start, end)
-            )
-
-            languageFunctions.push(annotation)
+        if (parameterCase === 'uppercase') {
+            parameterName = parameterName.toUpperCase()
         }
+
+        if (parameterCase === 'lowercase') {
+            parameterName = parameterName.toLowerCase()
+        }
+
+        const annotation = Annotations.parameterAnnotation(
+            leadingCharacters + parameterName + trailingCharacters,
+            new vscode.Range(start, end)
+        )
+
+        languageFunctions.push(annotation)
     }
 
     activeEditor.setDecorations(hintDecorationType, languageFunctions)
@@ -134,7 +133,7 @@ export function activate(context: vscode.ExtensionContext) {
             activeEditor = editor
 
             if (editor) {
-                triggerUpdateDecorations()
+                triggerUpdateDecorations(false)
             }
         },
         null,
