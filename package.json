@@ -75,6 +75,11 @@
             "description": "Show the number of times a variadic parameter has been called",
             "default": true
           },
+          "inline-parameters.hideRedundantAnnotations": {
+            "type": "boolean",
+            "description": "If the value given to a parameter is the same as the parameter name, hide it",
+            "default": true
+          },
           "inline-parameters.fontWeight": {
             "type": "string",
             "default": "400",

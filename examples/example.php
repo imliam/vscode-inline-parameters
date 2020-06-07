@@ -60,3 +60,10 @@ class Example
 
 $example = new Example(1);
 $example->two(2);
+
+if ($example === !is_null($example)) { }
+
+$ternary = is_null($example) ? strtoupper($a) : strtolower($b);
+
+$expression = 'Variables passed that match the name of the parameter name can be hidden with a setting';
+var_dump($expression);

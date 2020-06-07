@@ -16,11 +16,11 @@ const parser = new engine({
     },
 })
 
-export function getParameterName(editor: vscode.TextEditor, position: vscode.Position, key: number) {
+export function getParameterName(editor: vscode.TextEditor, position: vscode.Position, key: number, namedValue?: string) {
     return new Promise(async (resolve, reject) => {
         let parameters: any []
         const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, position)
-        let isVariadic = false
+        const shouldHideRedundantAnnotations = vscode.workspace.getConfiguration('inline-parameters').get('hideRedundantAnnotations')
     
         if (description && description.length > 0) {
             try {
@@ -44,10 +44,8 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
             if (isVariadic && key >= parameters.length - 1) {
                 let name = showDollar(parameters[parameters.length - 1])
 
-                const showVariadicNumbers = vscode.workspace.getConfiguration('inline-parameters').get('showVariadicNumbers')
-
-                if (showVariadicNumbers) {
-                    name = `${name}[${-parameters.length + 1 + key}]`
+            if (shouldHideRedundantAnnotations && name.replace('$', '') === namedValue) {
+                return reject()
                 }
 
                 name = showDollar(name)
@@ -64,17 +62,8 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
     })
 }
 
-export function parse(code: string): ParameterPosition[] {
-    code = removeShebang(code).replace("<?php", "")
-    const parsedPhpCode: any = parser.parseEval(code)
-    const expressions: any[] = []
-    crawlPhpAst(parsedPhpCode)
-
-    function crawlExpressionAst(expression: any) {
-        if (expression.arguments) {
-            expression.arguments.forEach((argument: any) => {
-                if (argument.body || argument.children) {
-                    crawlPhpAst(argument)
+            if (shouldHideRedundantAnnotations && name.replace('$', '') === namedValue) {
+                return reject()
                 }
 
                 if (argument.kind === 'call') {
@@ -175,6 +164,7 @@ export function parse(code: string): ParameterPosition[] {
                     const expressionLoc = expression.what.offset ? expression.what.offset.loc.start : expression.what.loc.end
 
                     parameters.push({
+            namedValue: argument.name ?? null,
                         expression: {
                             line: parseInt(expressionLoc.line) - 1,
                             character: parseInt(expressionLoc.column),

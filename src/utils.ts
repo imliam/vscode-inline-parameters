@@ -1,6 +1,8 @@
 import * as vscode from 'vscode'
 
 export interface ParameterPosition {
+    namedValue?: string
+
     expression: {
         line: number,
         character: number,
@@ -20,7 +22,7 @@ export interface ParameterPosition {
 }
 
 export interface LanguageDriver {
-    getParameterName(editor: vscode.TextEditor, position: vscode.Position, key: number): any
+    getParameterName(editor: vscode.TextEditor, position: vscode.Position, key: number, namedValue?: string): any
     parse(code: string): ParameterPosition[]
 }
 

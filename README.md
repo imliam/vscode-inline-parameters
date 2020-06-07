@@ -52,6 +52,7 @@ The extension provides a handful of configuration settings you can use to custom
 | `inline-parameters.hideSingleParameters`  | Hide inline parameters if a function only has 1 parameter | `false` |
 | `inline-parameters.parameterCase`  | Forcibly change the case of the inline parameter name. Options are `normal`, `lowercase` or `uppercase` | `"normal"` |
 | `inline-parameters.showVariadicNumbers`  | Show the number of times a variadic parameter has been called | `true` |
+| `inline-parameters.hideRedundantAnnotations`  | If the value given to a parameter is the same as the parameter name, hide the parameter name | `true` |
 | `inline-parameters.fontWeight` | Annotation styling of font-weight CSS property | `"400"` |
 | `inline-parameters.fontStyle` | Annotation styling of font-style CSS property | `"italic"` |
 | `inline-parameters.fontSize` | Annotation styling of font size CSS property | `12` |

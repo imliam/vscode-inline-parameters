@@ -1,12 +1,13 @@
 import * as recast from "recast"
 import * as vscode from 'vscode'
-import { removeShebang, ParameterPosition } from "../utils"
+import { removeShebang, ParameterPosition, showVariadicNumbers } from "../utils"
 
-export function getParameterName(editor: vscode.TextEditor, position: vscode.Position, key: number) {
+export function getParameterName(editor: vscode.TextEditor, position: vscode.Position, key: number, namedValue?: string) {
     return new Promise(async (resolve, reject) => {
+        let isVariadic = false
         let parameters: any[]
         const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, position)
-        let isVariadic = false
+        const shouldHideRedundantAnnotations = vscode.workspace.getConfiguration('inline-parameters').get('hideRedundantAnnotations')
 
         if (description && description.length > 0) {
             try {
@@ -14,8 +15,7 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
                 let definition = description[0].contents[0].value.match(functionDefinitionRegex)
 
                 if (!definition || definition.length === 0) {
-                    reject()
-                    return
+                    return reject()
                 }
 
                 definition = definition[0].slice(2, -2)
@@ -43,22 +43,33 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
             }
         }
 
-        if (parameters) {
-            if (isVariadic && key >= parameters.length - 1) {
-                let name = parameters[parameters.length - 1]
-                const showVariadicNumbers = vscode.workspace.getConfiguration('inline-parameters').get('showVariadicNumbers')
+        if (!parameters) {
+            return reject()
+        }
+    
+        if (isVariadic && key >= parameters.length - 1) {
+            let name = parameters[parameters.length - 1]
 
-                if (showVariadicNumbers) {
-                    name = `${name}[${-parameters.length + 1 + key}]`
-                }
-
-                resolve(name)
-            } else if (parameters[key]) {
-                resolve(parameters[key])
+            if (shouldHideRedundantAnnotations && name === namedValue) {
+                return reject()
             }
+
+            name = showVariadicNumbers(name, -parameters.length + 1 + key)
+
+            return resolve(name)
+        }
+        
+        if (parameters[key]) {
+            let name = parameters[key]
+
+            if (shouldHideRedundantAnnotations && name === namedValue) {
+                return reject()
+            }
+
+            return resolve(name)
         }
 
-        reject()
+        return reject()
     })
 }
 
@@ -144,6 +155,7 @@ function lookForFunctionCalls(editor: vscode.TextEditor, parameters: ParameterPo
 
 function parseParam(argument: any, key: number, expression: any, editor: vscode.TextEditor): ParameterPosition {
     const parameter: ParameterPosition = {
+        namedValue: argument.name ?? null,
         expression: {
             line: expression.start.line,
             character: expression.start.column,

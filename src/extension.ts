@@ -65,13 +65,17 @@ async function updateDecorations(activeEditor, languageDrivers) {
                     parameter.expression.line,
                     parameter.expression.character
                 ),
-                parameter.key
+                parameter.key,
+                parameter.namedValue
             )
         } catch (err) {
             // Error getting a parameter name, just ignore it
         }
 
-        if (parameterName) {
+        if (!parameterName) {
+            continue
+        }
+    
             const leadingCharacters = vscode.workspace.getConfiguration('inline-parameters').get('leadingCharacters')
             const trailingCharacters = vscode.workspace.getConfiguration('inline-parameters').get('trailingCharacters')
             const parameterCase = vscode.workspace.getConfiguration('inline-parameters').get('parameterCase')
