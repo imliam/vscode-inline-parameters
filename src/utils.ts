@@ -35,3 +35,13 @@ export function removeShebang(sourceCode: string): string {
 
     return sourceCodeArr.join("\n")
 }
+
+export function showVariadicNumbers(str: string, number: number): string {
+    const showVariadicNumbers = vscode.workspace.getConfiguration('inline-parameters').get('showVariadicNumbers')
+
+    if (showVariadicNumbers) {
+        return `${str}[${number}]`
+    }
+
+    return str
+}
