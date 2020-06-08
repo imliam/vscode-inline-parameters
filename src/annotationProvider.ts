@@ -11,8 +11,6 @@ export class Annotations {
         message: string,
         range: Range
     ): DecorationOptions {
-        const fontSize = workspace.getConfiguration("inline-parameters").get("fontSize")
-
         return {
             range,
             renderOptions: {
@@ -22,7 +20,14 @@ export class Annotations {
                     backgroundColor: new ThemeColor("inlineparameters.annotationBackground"),
                     fontStyle: workspace.getConfiguration("inline-parameters").get("fontStyle"),
                     fontWeight: workspace.getConfiguration("inline-parameters").get("fontWeight"),
-                    textDecoration: `;font-size:${fontSize}px;`,
+                    textDecoration: `;
+                        font-size: ${workspace.getConfiguration("inline-parameters").get("fontSize")};
+                        margin: ${workspace.getConfiguration("inline-parameters").get("margin")};
+                        padding: ${workspace.getConfiguration("inline-parameters").get("padding")};
+                        border-radius: ${workspace.getConfiguration("inline-parameters").get("borderRadius")};
+                        border: ${workspace.getConfiguration("inline-parameters").get("border")};
+                        vertical-align: middle;
+                    `,
                 },
             } as DecorationInstanceRenderOptions,
         } as DecorationOptions

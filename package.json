@@ -43,12 +43,12 @@
           "inline-parameters.leadingCharacters": {
             "type": "string",
             "description": "Characters to be shown before each parameter annotation",
-            "default": " "
+            "default": ""
           },
           "inline-parameters.trailingCharacters": {
             "type": "string",
             "description": "Characters to be shown after each parameter annotation",
-            "default": ": "
+            "default": ":"
           },
           "inline-parameters.showPhpDollar": {
             "type": "boolean",
@@ -106,9 +106,29 @@
             "description": "Annotation styling of font-style CSS property"
           },
           "inline-parameters.fontSize": {
-            "type": "number",
-            "default": 12,
+            "type": "string",
+            "default": "0.85em",
             "description": "Annotation styling of font size CSS property"
+          },
+          "inline-parameters.margin": {
+            "type": "string",
+            "default": "0.25em",
+            "description": "Annotation styling of margin CSS property"
+          },
+          "inline-parameters.padding": {
+            "type": "string",
+            "default": "0.25em 0.5em",
+            "description": "Annotation styling of padding CSS property"
+          },
+          "inline-parameters.borderRadius": {
+            "type": "string",
+            "default": "0.25em",
+            "description": "Annotation styling of border-radius CSS property"
+          },
+          "inline-parameters.border": {
+            "type": "string",
+            "default": "none",
+            "description": "Annotation styling of border CSS property"
           }
         }
       }
