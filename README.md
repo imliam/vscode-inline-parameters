@@ -47,16 +47,25 @@ The extension provides a handful of configuration settings you can use to custom
 | Name | Description | Default |
 |-------|------------|---------|
 | `inline-parameters.enabled`  | Show inline parameters | `true` |
-| `inline-parameters.leadingCharacters`  | Characters to be shown before each parameter annotation | `" "` |
-| `inline-parameters.trailingCharacters`  | Characters to be shown after each parameter annotation | `": "` |
+| `inline-parameters.leadingCharacters`  | Characters to be shown before each parameter annotation | `""` |
+| `inline-parameters.trailingCharacters`  | Characters to be shown after each parameter annotation | `":"` |
 | `inline-parameters.showPhpDollar`  | Show the $ character before PHP parameter names | `false` |
 | `inline-parameters.hideSingleParameters`  | Hide inline parameters if a function only has 1 parameter | `false` |
 | `inline-parameters.parameterCase`  | Forcibly change the case of the inline parameter name. Options are `normal`, `lowercase` or `uppercase` | `"normal"` |
 | `inline-parameters.showVariadicNumbers`  | Show the number of times a variadic parameter has been called | `true` |
 | `inline-parameters.hideRedundantAnnotations`  | If the value given to a parameter is the same as the parameter name, hide the parameter name | `true` |
+
+There are also a handful of settings that can be used to customise the styling of the annotation to your own personal preference.
+
+| Name | Description | Default |
+|-------|------------|---------|
 | `inline-parameters.fontWeight` | Annotation styling of font-weight CSS property | `"400"` |
 | `inline-parameters.fontStyle` | Annotation styling of font-style CSS property | `"italic"` |
-| `inline-parameters.fontSize` | Annotation styling of font size CSS property | `12` |
+| `inline-parameters.fontSize` | Annotation styling of font size CSS property | `0.85em` |
+| `inline-parameters.margin` | Annotation styling of margin CSS property | `0.25em` |
+| `inline-parameters.padding` | Annotation styling of padding CSS property | `0.25em 0.5em` |
+| `inline-parameters.border` | Annotation styling of border CSS property | `0.25em` |
+| `inline-parameters.borderRadius` | Annotation styling of border-radius CSS property | `none` |
 
 ## Themable Colours
 
@@ -64,8 +73,8 @@ You can change the default foreground and background colours in the `workbench.c
 
 | Name | Description |
 |------|-------------|
-| `inline-parameters.annotationForeground` | Specifies the foreground colour for the annotations |
-| `inline-parameters.annotationBackground` | Specifies the background colour for the annotations |
+| `inlineparameters.annotationForeground` | Specifies the foreground colour for the annotations |
+| `inlineparameters.annotationBackground` | Specifies the background colour for the annotations |
 
 ## Commands
 
