@@ -64,8 +64,8 @@ There are also a handful of settings that can be used to customise the styling o
 | `inline-parameters.fontSize` | Annotation styling of font size CSS property | `0.85em` |
 | `inline-parameters.margin` | Annotation styling of margin CSS property | `0.25em` |
 | `inline-parameters.padding` | Annotation styling of padding CSS property | `0.25em 0.5em` |
-| `inline-parameters.border` | Annotation styling of border CSS property | `0.25em` |
-| `inline-parameters.borderRadius` | Annotation styling of border-radius CSS property | `none` |
+| `inline-parameters.border` | Annotation styling of border CSS property | `none` |
+| `inline-parameters.borderRadius` | Annotation styling of border-radius CSS property | `0.25em` |
 
 ## Themable Colours
 
