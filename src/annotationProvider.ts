@@ -26,7 +26,7 @@ export class Annotations {
                         padding: ${workspace.getConfiguration("inline-parameters").get("padding")};
                         border-radius: ${workspace.getConfiguration("inline-parameters").get("borderRadius")};
                         border: ${workspace.getConfiguration("inline-parameters").get("border")};
-                        vertical-align: middle;
+                        vertical-align: baseline;
                     `,
                 },
             } as DecorationInstanceRenderOptions,
