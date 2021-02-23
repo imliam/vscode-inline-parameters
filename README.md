@@ -78,9 +78,9 @@ You can change the default foreground and background colours in the `workbench.c
 
 ## Commands
 
-| Name | Description |
-|------|-------------|
-| `inline-parameters.toggle` | Hide / show inline parameters |
+| Name | Description | Keyboard Shortcut |
+|------|-------------|-------------------|
+| `inline-parameters.toggle` | Hide / show inline parameters | <kbd>Ctrl K</kbd> <kbd>A</kbd> or <kbd>⌘ K</kbd> <kbd>A</kbd> |
 
 ## Credits / Links
 
