@@ -11,22 +11,22 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
 
         if (description && description.length > 0) {
             try { 
-                let definition = description[0].contents[0].value
+                let definition = description[0].contents[0].value.replace(/(?<=\)\s*\:).*/m, '');
                 // Find the left bracket matching the last right bracket
                 let pos = [0, 0];
                 let bracketsCount = 0;
-                let isFound = false;
+                let isLastRightBracketFound = false;
                 for (let i = definition.length - 1; i >= 0; i--) {
                     const e = definition[i];
                     if (e === ')') { 
                         bracketsCount++; 
-                        if (!isFound) {
-                            isFound = true;
+                        if (!isLastRightBracketFound) {
+                            isLastRightBracketFound = true;
                             pos[1] = i;
                         }
                     }
                     else if (e === '(') bracketsCount--;
-                    if (isFound && bracketsCount === 0) {
+                    if (isLastRightBracketFound && bracketsCount === 0) {
                         pos[0] = i;
                         break;
                     }
@@ -37,7 +37,7 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
                     return reject()
                 }
 
-                definition = definition.slice(1, -1).replace(/\<.*\>/g,'');
+                definition = definition.slice(1, -1).replace(/\<.*?\>/g,'');
 
                 const jsParameterNameRegex = /^[a-zA-Z_$]([0-9a-zA-Z_$]+)?/g
 
@@ -57,6 +57,11 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
 
                         return parameter
                     })
+
+                // Typescript allows "this" type
+                if (parameters[0] === "this") {
+                    parameters.shift();
+                }
             } catch (err) {
                 console.error(err)
             }
