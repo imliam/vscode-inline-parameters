@@ -1,5 +1,5 @@
 import { parse as abstractParse } from './abstract-javascript'
-export { getParameterName } from './abstract-javascript'
+export { getParameterNameList } from './abstract-javascript'
 
 export function parse(code: string) {
     return abstractParse(code, {

@@ -2,11 +2,15 @@ import * as recast from "recast"
 import * as vscode from 'vscode'
 import { removeShebang, ParameterPosition, showVariadicNumbers } from "../utils"
 
-export function getParameterName(editor: vscode.TextEditor, position: vscode.Position, key: number, namedValue?: string) {
+export function getParameterNameList(editor: vscode.TextEditor, languageParameters: ParameterPosition[]): Promise<string[]> {
     return new Promise(async (resolve, reject) => {
         let isVariadic = false
         let parameters: any[]
-        const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, position)
+        const firstParameter = languageParameters[0]
+        const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, new vscode.Position(
+            firstParameter.expression.line,
+            firstParameter.expression.character
+        ))
         const shouldHideRedundantAnnotations = vscode.workspace.getConfiguration('inline-parameters').get('hideRedundantAnnotations')
 
         if (description && description.length > 0) {
@@ -46,51 +50,59 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
         if (!parameters) {
             return reject()
         }
-    
-        if (isVariadic && key >= parameters.length - 1) {
-            let name = parameters[parameters.length - 1]
 
-            if (shouldHideRedundantAnnotations && name === namedValue) {
-                return reject()
+        let namedValueName = undefined;
+        const parametersLength = parameters.length;
+        for (let i = 0; i < languageParameters.length; i++) {
+            const parameter = languageParameters[i];
+            const key = parameter.key;
+
+            if (isVariadic && key >= parameters.length - 1) {
+                if (namedValueName === undefined) namedValueName = parameters[parameters.length - 1]
+
+                if (shouldHideRedundantAnnotations && namedValueName === parameter.namedValue) {
+                    parameters[i] = undefined
+                    continue;
+                }
+
+                parameters[i] = showVariadicNumbers(namedValueName, -parametersLength + 1 + key)
+                continue;
             }
-
-            name = showVariadicNumbers(name, -parameters.length + 1 + key)
-
-            return resolve(name)
-        }
         
-        if (parameters[key]) {
-            let name = parameters[key]
+            if (parameters[key]) {
+                let name = parameters[key]
 
-            if (shouldHideRedundantAnnotations && name === namedValue) {
-                return reject()
+                if (shouldHideRedundantAnnotations && name === parameter.namedValue) {
+                    parameters[i] = undefined
+                }
+                continue;
             }
 
-            return resolve(name)
+            parameters[i] = undefined
+            continue;
         }
 
-        return reject()
+        return resolve(parameters)
     })
 }
 
 export function parse(code: string, options: any) {
     code = removeShebang(code)
     let javascriptAst: any = ''
-    let parameters: ParameterPosition[] = []
     const editor = vscode.window.activeTextEditor
 
     try {
         javascriptAst = recast.parse(code, options).program.body
     } catch (err) {
-        return parameters
+        return [];
     }
 
-    parameters = lookForFunctionCalls(editor, parameters, javascriptAst)
-
-    return parameters
+   return lookForFunctionCalls(editor, javascriptAst)
 }
 
-function lookForFunctionCalls(editor: vscode.TextEditor, parameters: ParameterPosition[], body: any): ParameterPosition[] {
+function lookForFunctionCalls(editor: vscode.TextEditor, body: any): ParameterPosition[][] {
+    let parameters:ParameterPosition[][] = [];
+
     let arr = []
 
     function getNodes(astNode, nodeArr) {
@@ -131,24 +143,27 @@ function lookForFunctionCalls(editor: vscode.TextEditor, parameters: ParameterPo
         }
     })
 
-    for (const call of calls) {
-        if (call.callee && call.callee.loc) {
+    calls.forEach((call, index) => {
+         if (call.callee && call.callee.loc) {
 
             if (call.arguments) {
                 const hideSingleParameters = vscode.workspace.getConfiguration('inline-parameters').get('hideSingleParameters')
 
                 if (hideSingleParameters && call.arguments.length === 1) {
-                    continue
+                    return;
                 }
 
                 const expression = getExpressionLoc(call)
-
-                call.arguments.forEach((argument: any, key: number) => {
-                    parameters.push(parseParam(argument, key, expression, editor))
-                })
+                
+                if (call.arguments.length > 0) {
+                    parameters[index] = [];
+                    call.arguments.forEach((argument: any, key: number) => {
+                        parameters[index].push(parseParam(argument, key, expression, editor))
+                    })
+                }
             }
         }
-    }
+    })
 
     return parameters
 }

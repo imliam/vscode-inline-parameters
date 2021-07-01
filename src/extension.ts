@@ -30,71 +30,73 @@ async function updateDecorations(activeEditor, languageDrivers: Record<string, L
     }
 
     const code = activeEditor.document.getText()
-    let languageParameters: ParameterPosition[] = []
+    let functionParametersList: ParameterPosition[][]
 
     try {
-        languageParameters = driver.parse(code)
+        functionParametersList = driver.parse(code)
     } catch (err) {
         // Error parsing language's AST, likely a syntax error on the user's side
     }
 
-    if (languageParameters.length === 0) {
+    if (functionParametersList.length === 0) {
         return
     }
 
     const languageFunctions: vscode.DecorationOptions[] = []
 
-    for (let index = 0; index < languageParameters.length; index++) {
-        var parameter = languageParameters[index]
+    const leadingCharacters = vscode.workspace.getConfiguration('inline-parameters').get('leadingCharacters')
+    const trailingCharacters = vscode.workspace.getConfiguration('inline-parameters').get('trailingCharacters')
+    const parameterCase = vscode.workspace.getConfiguration('inline-parameters').get('parameterCase')
 
-        const start = new vscode.Position(
-            parameter.start.line,
-            parameter.start.character
-        )
+    for (const languageParameters of functionParametersList) {
+        if (languageParameters === undefined) continue;
 
-        const end = new vscode.Position(
-            parameter.end.line,
-            parameter.end.character
-        )
-
-        let parameterName: any
+        let parameters;
 
         try {
-            parameterName = await driver.getParameterName(
+            parameters = await driver.getParameterNameList(
                 activeEditor,
-                new vscode.Position(
-                    parameter.expression.line,
-                    parameter.expression.character
-                ),
-                parameter.key,
-                parameter.namedValue
+                languageParameters
             )
         } catch (err) {
-            // Error getting a parameter name, just ignore it
+            continue;
         }
 
-        if (!parameterName) {
-            continue
-        }
-    
-        const leadingCharacters = vscode.workspace.getConfiguration('inline-parameters').get('leadingCharacters')
-        const trailingCharacters = vscode.workspace.getConfiguration('inline-parameters').get('trailingCharacters')
-        const parameterCase = vscode.workspace.getConfiguration('inline-parameters').get('parameterCase')
+        for (let index = 0; index < languageParameters.length; index++) {
+            let parameterName = parameters[index]
+            let parameter = languageParameters[index]
 
-        if (parameterCase === 'uppercase') {
-            parameterName = parameterName.toUpperCase()
-        }
+            if (parameterName === undefined) continue; 
 
-        if (parameterCase === 'lowercase') {
-            parameterName = parameterName.toLowerCase()
-        }
+            const start = new vscode.Position(
+                parameter.start.line,
+                parameter.start.character
+            )
 
-        const annotation = Annotations.parameterAnnotation(
-            leadingCharacters + parameterName + trailingCharacters,
-            new vscode.Range(start, end)
-        )
+            const end = new vscode.Position(
+                parameter.end.line,
+                parameter.end.character
+            )
 
-        languageFunctions.push(annotation)
+            if (!parameterName) {
+                continue
+            }
+        
+            if (parameterCase === 'uppercase') {
+                parameterName = parameterName.toUpperCase()
+            }
+
+            if (parameterCase === 'lowercase') {
+                parameterName = parameterName.toLowerCase()
+            }
+
+            const annotation = Annotations.parameterAnnotation(
+                leadingCharacters + parameterName + trailingCharacters,
+                new vscode.Range(start, end)
+            )
+
+            languageFunctions.push(annotation)
+        }    
     }
 
     activeEditor.setDecorations(hintDecorationType, languageFunctions)

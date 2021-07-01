@@ -16,11 +16,15 @@ const parser = new engine({
     },
 })
 
-export function getParameterName(editor: vscode.TextEditor, position: vscode.Position, key: number, namedValue?: string) {
+export function getParameterNameList(editor: vscode.TextEditor, languageParameters: ParameterPosition[]): Promise<string[]> {
     return new Promise(async (resolve, reject) => {
         let isVariadic = false
         let parameters: any []
-        const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, position)
+        const firstParameter = languageParameters[0]
+        const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, new vscode.Position(
+            firstParameter.expression.line,
+            firstParameter.expression.character
+        ))
         const shouldHideRedundantAnnotations = vscode.workspace.getConfiguration('inline-parameters').get('hideRedundantAnnotations')
     
         if (description && description.length > 0) {
@@ -45,43 +49,55 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
             return parameter
         })
 
-        if (isVariadic && key >= parameters.length - 1) {
-            let name = parameters[parameters.length - 1]
+        let namedValueName = undefined;
+        const parametersLength = parameters.length;
+        for (let i = 0; i < languageParameters.length; i++) {
+            const parameter = languageParameters[i];
+            const key = parameter.key;
+            
+            if (isVariadic && key >= parameters.length - 1) {
+                if (namedValueName === undefined) namedValueName = parameters[parameters.length - 1]
 
-            if (shouldHideRedundantAnnotations && name.replace('$', '') === namedValue) {
-                return reject()
+                if (shouldHideRedundantAnnotations && namedValueName.replace('$', '') === parameter.namedValue) {
+                    return reject()
+                }
+
+                let name = namedValueName;
+                name = showDollar(name)
+                parameters[i] = showVariadicNumbers(name, -parametersLength + 1 + key)
+                continue;
             }
 
-            name = showDollar(name)
-            name = showVariadicNumbers(name, -parameters.length + 1 + key)
+            if (parameters[key]) {
+                let name = parameters[key]
 
-            return resolve(name)
-        }
+                if (shouldHideRedundantAnnotations && name.replace('$', '') === parameter.namedValue) {
+                    parameters[i] = undefined
+                    continue;
+                }
 
-        if (parameters[key]) {
-            let name = parameters[key]
+                name = showDollar(name)
 
-            if (shouldHideRedundantAnnotations && name.replace('$', '') === namedValue) {
-                return reject()
+                parameters[i] = name
+                continue;
             }
-
-            name = showDollar(name)
-
-            return resolve(name)
+        
+            parameters[i] = undefined
+            continue;
         }
-    
-        return reject()
+        
+        return resolve(parameters);
     })
 }
 
-export function parse(code: string): ParameterPosition[] {
+export function parse(code: string): ParameterPosition[][] {
     code = removeShebang(code).replace("<?php", "")
     const ast: any = parser.parseEval(code)
     const functionCalls: any[] = crawlAst(ast)
-    let parameters: ParameterPosition[] = []
+    let parameters: ParameterPosition[][] = []
 
     functionCalls.forEach((expression) => {
-        parameters = getParametersFromExpression(expression, parameters)
+        parameters.push(getParametersFromExpression(expression))
     })
 
     return parameters
@@ -113,10 +129,12 @@ function crawlAst(ast, functionCalls = []) {
     return functionCalls
 }
 
-function getParametersFromExpression(expression: any, parameters: ParameterPosition[] = []): ParameterPosition[] {
+function getParametersFromExpression(expression: any): ParameterPosition[] | undefined {
     if (!expression.arguments) {
-        return parameters
+        return undefined
     }
+
+    let parameters = [];
 
     expression.arguments.forEach((argument: any, key: number) => {
         if (!expression.what || (!expression.what.offset && !expression.what.loc)) {
