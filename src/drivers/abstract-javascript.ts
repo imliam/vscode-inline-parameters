@@ -18,7 +18,7 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
                     return reject()
                 }
 
-                definition = definition[0].slice(2, -2)
+                definition = definition[0].slice(2, -2).replace(/\<.*\>/g,'');
 
                 const jsParameterNameRegex = /^[a-zA-Z_$]([0-9a-zA-Z_$]+)?/g
 
