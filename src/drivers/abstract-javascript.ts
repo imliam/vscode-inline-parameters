@@ -10,15 +10,34 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
         const shouldHideRedundantAnnotations = vscode.workspace.getConfiguration('inline-parameters').get('hideRedundantAnnotations')
 
         if (description && description.length > 0) {
-            try {
-                const functionDefinitionRegex = /\(((?!loading).*)\)/gm
-                let definition = description[0].contents[0].value.match(functionDefinitionRegex)
+            try { 
+                let definition = description[0].contents[0].value
+                // Find the left bracket matching the last right bracket
+                let pos = [0, 0];
+                let bracketsCount = 0;
+                let isFound = false;
+                for (let i = definition.length - 1; i >= 0; i--) {
+                    const e = definition[i];
+                    if (e === ')') { 
+                        bracketsCount++; 
+                        if (!isFound) {
+                            isFound = true;
+                            pos[1] = i;
+                        }
+                    }
+                    else if (e === '(') bracketsCount--;
+                    if (isFound && bracketsCount === 0) {
+                        pos[0] = i;
+                        break;
+                    }
+                }
+                definition = definition.slice(pos[0], pos[1] + 1);
 
                 if (!definition || definition.length === 0) {
                     return reject()
                 }
 
-                definition = definition[0].slice(1, -1).replace(/\<.*\>/g,'');
+                definition = definition.slice(1, -1).replace(/\<.*\>/g,'');
 
                 const jsParameterNameRegex = /^[a-zA-Z_$]([0-9a-zA-Z_$]+)?/g
 
