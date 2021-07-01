@@ -11,14 +11,14 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
 
         if (description && description.length > 0) {
             try {
-                const functionDefinitionRegex = /[^ ](?!^)\((.*)\)\:/gm
+                const functionDefinitionRegex = /\(((?!loading).*)\)/gm
                 let definition = description[0].contents[0].value.match(functionDefinitionRegex)
 
                 if (!definition || definition.length === 0) {
                     return reject()
                 }
 
-                definition = definition[0].slice(2, -2).replace(/\<.*\>/g,'');
+                definition = definition[0].slice(1, -1).replace(/\<.*\>/g,'');
 
                 const jsParameterNameRegex = /^[a-zA-Z_$]([0-9a-zA-Z_$]+)?/g
 
