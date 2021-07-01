@@ -11,7 +11,7 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
 
         if (description && description.length > 0) {
             try { 
-                let definition = description[0].contents[0].value.replace(/(?<=\)\s*\:).*/m, '');
+                let definition = description[0].contents[0].value.replace(/(?<=\)\s*\:)[\s\S]*/m, '');
                 // Find the left bracket matching the last right bracket
                 let pos = [0, 0];
                 let bracketsCount = 0;
@@ -37,7 +37,9 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
                     return reject()
                 }
 
-                definition = definition.slice(1, -1).replace(/\<.*?\>/g,'');
+                definition = definition.slice(1, -1)
+                    .replace(/\<.*?\>/g,'')
+                    .replace(/\(.*?\)/g,'');
 
                 const jsParameterNameRegex = /^[a-zA-Z_$]([0-9a-zA-Z_$]+)?/g
 
