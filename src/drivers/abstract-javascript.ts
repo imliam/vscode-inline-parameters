@@ -15,24 +15,35 @@ export function getParameterNameList(editor: vscode.TextEditor, languageParamete
 
         if (description && description.length > 0) {
             try { 
-                let definition = description[0].contents[0].value.replace(/(?<=\)\s*\:)[\s\S]*/m, '');
-                // Find the left bracket matching the last right bracket
-                let pos = [0, 0];
+                let definition = description[0].contents[0].value;
+                // Find the bracket matching () => or () :
+                let pos = [0, -1];
                 let bracketsCount = 0;
-                let isLastRightBracketFound = false;
+                let isFindingBrackets = false;
                 for (let i = definition.length - 1; i >= 0; i--) {
                     const e = definition[i];
-                    if (e === ')') { 
-                        bracketsCount++; 
-                        if (!isLastRightBracketFound) {
-                            isLastRightBracketFound = true;
-                            pos[1] = i;
-                        }
-                    }
-                    else if (e === '(') bracketsCount--;
-                    if (isLastRightBracketFound && bracketsCount === 0) {
-                        pos[0] = i;
-                        break;
+                    switch (e) {
+                        case ")":
+                            if (bracketsCount === 0 && isFindingBrackets) pos[1] = i;
+                            bracketsCount ++;
+                            break;
+                        case "(":
+                            bracketsCount --;
+                            if (bracketsCount === 0 && isFindingBrackets) {
+                                pos[0] = i;
+                                isFindingBrackets = false;
+                            }
+                            break;
+                        case ":":
+                        case "=":
+                            if (bracketsCount === 0)
+                                isFindingBrackets = true;
+                            break;
+                        case " ":
+                            break;
+                        default:
+                            if (bracketsCount === 0) isFindingBrackets = false;
+                            break;
                     }
                 }
                 definition = definition.slice(pos[0], pos[1] + 1);
