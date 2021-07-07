@@ -1,6 +1,7 @@
 import * as recast from "recast"
 import * as vscode from 'vscode'
-import { removeShebang, ParameterPosition, showVariadicNumbers } from "../utils"
+import { MarkdownString } from "vscode"
+import { removeShebang, ParameterPosition, showVariadicNumbers, chooseTheMostLikelyFunctionDefinition } from "../utils"
 
 export function getParameterNameList(editor: vscode.TextEditor, languageParameters: ParameterPosition[]): Promise<string[]> {
     return new Promise(async (resolve, reject) => {
@@ -15,7 +16,8 @@ export function getParameterNameList(editor: vscode.TextEditor, languageParamete
 
         if (description && description.length > 0) {
             try { 
-                let definition = description[0].contents[0].value;
+                let definition: string = chooseTheMostLikelyFunctionDefinition(<MarkdownString[]>description[0].contents);
+                if (definition === undefined) reject();
                 // Find the bracket matching () => or () :
                 let pos = [0, -1];
                 let bracketsCount = 0;

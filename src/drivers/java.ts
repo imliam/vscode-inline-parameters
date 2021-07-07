@@ -1,14 +1,15 @@
 import * as vscode from 'vscode'
-import { removeShebang, ParameterPosition, showVariadicNumbers } from '../utils'
+import { removeShebang, ParameterPosition, showVariadicNumbers, chooseTheMostLikelyFunctionDefinition } from '../utils'
 
 import { parse as javaparse, walk, ParseTree, JavaParserListener, MethodCallContext, ExpressionContext, ArgumentsContext } from 'java-ast'
+import { MarkdownString } from 'vscode'
 
 export function getParameterNameList(editor: vscode.TextEditor, languageParameters: ParameterPosition[]): Promise<string[]> {
     return new Promise(async (resolve, reject) => {
         let isVariadic = false
         let parameters: any[]
         const firstParameter = languageParameters[0]
-        const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, new vscode.Position(
+        const description = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, new vscode.Position(
             firstParameter.expression.line,
             firstParameter.expression.character
         ))
@@ -17,7 +18,7 @@ export function getParameterNameList(editor: vscode.TextEditor, languageParamete
         if (description && description.length > 0) {
             try {
                 const functionDefinitionRegex = /[^ ](?!^)\((.*)\)/gm
-                let definition = description[0].contents[0].value.match(functionDefinitionRegex)
+                let definition: string | string[] | undefined = chooseTheMostLikelyFunctionDefinition(<MarkdownString[]>description[0].contents)?.match(functionDefinitionRegex);
 
                 if (!definition || definition.length === 0) {
                     return reject()
@@ -109,14 +110,14 @@ function getFunctionCalls(ast: ParseTree): any[] {
 
     class JavaMethodListener implements JavaParserListener {
         enterArguments = (args: ArgumentsContext) => {
-            const params = args.expressionList().expression()
-            if (!(hideSingleParameters && params.length === 1)) {
+            const params = args.expressionList()?.expression()
+            if (params && !(hideSingleParameters && params.length === 1)) {
                 functionCalls.push(args);
             }
         }
         enterMethodCall = (method: MethodCallContext) => {
-            const params = method.expressionList().expression()
-            if (!(hideSingleParameters && params.length === 1)) {
+            const params = method.expressionList()?.expression()
+            if (params && !(hideSingleParameters && params.length === 1)) {
                 functionCalls.push(method);
             }
         };

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode'
+import { MarkdownString } from 'vscode'
 
 export interface ParameterPosition {
     namedValue?: string
@@ -44,4 +45,12 @@ export function showVariadicNumbers(str: string, number: number): string {
     }
 
     return str
+}
+
+export function chooseTheMostLikelyFunctionDefinition(hoverList: MarkdownString[]): string | undefined {
+    for (const hover of hoverList) {
+        if (hover.value.startsWith("\n```"))
+            return hover.value;
+    }
+    return undefined;
 }

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { removeShebang, ParameterPosition, showVariadicNumbers } from '../utils'
+import { removeShebang, ParameterPosition, showVariadicNumbers, chooseTheMostLikelyFunctionDefinition } from '../utils'
 
 const engine = require("php-parser")
 
@@ -30,7 +30,7 @@ export function getParameterNameList(editor: vscode.TextEditor, languageParamete
         if (description && description.length > 0) {
             try {
                 const regEx = /(?<=@param.+)(\.{3})?(\$[a-zA-Z0-9_]+)/g
-                parameters = description[0].contents[0].value.match(regEx)
+                parameters = chooseTheMostLikelyFunctionDefinition(<vscode.MarkdownString[]>description[0].contents)?.match(regEx)
             } catch (err) {
                 console.error(err)
             }
