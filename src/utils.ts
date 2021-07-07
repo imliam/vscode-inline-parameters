@@ -49,7 +49,7 @@ export function showVariadicNumbers(str: string, number: number): string {
 
 export function chooseTheMostLikelyFunctionDefinition(hoverList: MarkdownString[]): string | undefined {
     for (const hover of hoverList) {
-        if (hover.value.includes("\n```"))
+        if (hover.value.includes("```"))
             return hover.value;
     }
     return undefined;
