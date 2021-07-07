@@ -14,7 +14,7 @@ function b(
 b("aa", "aa", {}, 2);
 
 class B {
-  foo(a: (c: string, q: string) => void, c:number) {}
+  foo(a: (c: string, q: string) => void, c: number) {}
 
   bar: (a: string) => void;
 }
@@ -24,3 +24,9 @@ new B().foo(() => {}, 1);
 new B().bar("aa");
 
 a.call(this, 1);
+
+let c = (a: string, b: () => void, c?: number) => {
+  return () => {};
+};
+
+c("", () => {}, 2);

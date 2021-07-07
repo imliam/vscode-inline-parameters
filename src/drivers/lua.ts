@@ -30,7 +30,6 @@ export function getParameterNameList(editor: vscode.TextEditor, languageParamete
             }
         }
 
-
         const parameters: string[] = definition
             .substring(definition.indexOf('(') + 1, definition.lastIndexOf(')'))
             .replace(/\[/g, '').replace(/\]/g, '')
@@ -46,7 +45,7 @@ export function getParameterNameList(editor: vscode.TextEditor, languageParamete
             })
             .filter(parameter => parameter)
 
-        parameters.filter((param, index) => {
+        parameters.filter((_param, index) => {
             const parameter = languageParameters[index];
             if (parameter === undefined) return false;
             const key = parameter.key;

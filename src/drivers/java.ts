@@ -3,11 +3,15 @@ import { removeShebang, ParameterPosition, showVariadicNumbers } from '../utils'
 
 import { parse as javaparse, walk, ParseTree, JavaParserListener, MethodCallContext, ExpressionContext, ArgumentsContext } from 'java-ast'
 
-export function getParameterName(editor: vscode.TextEditor, position: vscode.Position, key: number, namedValue?: string) {
+export function getParameterNameList(editor: vscode.TextEditor, languageParameters: ParameterPosition[]): Promise<string[]> {
     return new Promise(async (resolve, reject) => {
         let isVariadic = false
         let parameters: any[]
-        const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, position)
+        const firstParameter = languageParameters[0]
+        const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, new vscode.Position(
+            firstParameter.expression.line,
+            firstParameter.expression.character
+        ))
         const shouldHideRedundantAnnotations = vscode.workspace.getConfiguration('inline-parameters').get('hideRedundantAnnotations')
 
         if (description && description.length > 0) {
@@ -47,43 +51,53 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
             return reject()
         }
 
-        if (isVariadic && key >= parameters.length - 1) {
-            let name = parameters[parameters.length - 1]
+        let namedValueName = undefined;
+        const parametersLength = parameters.length;
+        for (let i = 0; i < languageParameters.length; i++) {
+            const parameter = languageParameters[i];
+            const key = parameter.key;
+            
+            if (isVariadic && key >= parameters.length - 1) {
+                if (namedValueName === undefined) namedValueName = parameters[parameters.length - 1]
 
-            if (shouldHideRedundantAnnotations && name === namedValue) {
-                return reject()
+                if (shouldHideRedundantAnnotations && namedValueName === parameter.namedValue) {
+                    return reject()
+                }
+
+                parameters[i] = showVariadicNumbers(namedValueName, -parametersLength + 1 + key)
+
+                continue;
+            } 
+            
+            if (parameters[key]) {
+                let name = parameters[key]
+
+                if (shouldHideRedundantAnnotations && name === parameter.namedValue) {
+                    parameters[i] = undefined
+                }
+
+                continue;
             }
 
-            name = showVariadicNumbers(name, -parameters.length + 1 + key)
-
-            return resolve(name)
+            parameters[i] = undefined
+            continue;
         }
 
-        if (parameters[key]) {
-            let name = parameters[key]
-
-            if (shouldHideRedundantAnnotations && name === namedValue) {
-                return reject()
-            }
-
-            return resolve(name)
-        }
-
-        return reject()
+        return resolve(parameters)
     })
 }
 
-export function parse(code: string): ParameterPosition[] {
+export function parse(code: string): ParameterPosition[][] {
     code = removeShebang(code)
     const ast = javaparse(code)
     const editor = vscode.window.activeTextEditor
 
     const functionCalls: any[] = getFunctionCalls(ast)
-    let parameters: ParameterPosition[] = []
+    let parameters: ParameterPosition[][] = []
 
-    for (const call of functionCalls) {
-        parameters = getParametersFromMethod(editor, call, parameters)
-    }
+    functionCalls.forEach((call) => {
+        parameters.push(getParametersFromMethod(editor,call))
+    })
 
     return parameters
 }
@@ -122,7 +136,8 @@ function position(parameter) {
     return "[" + start + " - " + end + "] @ " + exp
 }
 
-function getParametersFromMethod(editor: vscode.TextEditor, method: any, parameters: ParameterPosition[]): ParameterPosition[] {
+function getParametersFromMethod(editor: vscode.TextEditor, method: any): ParameterPosition[] {
+    let parameters = [];
 
     let params = method.expressionList().expression()
 

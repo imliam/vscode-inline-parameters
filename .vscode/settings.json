@@ -5,4 +5,5 @@
     "search.exclude": {
         "out": true
     },
+    "workspace.isHidden": false,
 }
