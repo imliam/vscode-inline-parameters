@@ -30,6 +30,7 @@ Currently, this extension supports the following languages:
 - TypeScript (and with React)
 - PHP (with the [Intelephense](https://marketplace.visualstudio.com/items?itemName=bmewburn.vscode-intelephense-client) language server)
 - Lua (with [Sumneko's Lua language server](https://marketplace.visualstudio.com/items?itemName=sumneko.lua))
+- Java
 
 ### Want to contribute additional language support?
 
