@@ -39,7 +39,7 @@ async function updateDecorations(activeEditor, languageDrivers: Record<string, L
         // Error parsing language's AST, likely a syntax error on the user's side
     }
 
-    if (functionParametersList.length === 0) {
+    if (!functionParametersList || functionParametersList.length === 0) {
         return
     }
 

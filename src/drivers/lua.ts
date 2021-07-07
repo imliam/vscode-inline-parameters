@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { removeShebang, ParameterPosition } from '../utils'
+import { removeShebang, ParameterPosition, chooseTheMostLikelyFunctionDefinition } from '../utils'
 
 const parser = require('luaparse')
 
@@ -18,7 +18,7 @@ export function getParameterNameList(editor: vscode.TextEditor, languageParamete
         if (description && description.length > 0) {
             try {
                 const regEx = /^function\ .*\((.*)\)/gm
-                definitions = description[0].contents[0].value.match(regEx)
+                definitions = chooseTheMostLikelyFunctionDefinition(<vscode.MarkdownString[]>description[0].contents)?.match(regEx)
 
                 if (!definitions || !definitions[0]) {
                     return reject()
