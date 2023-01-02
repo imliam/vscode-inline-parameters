@@ -22,8 +22,8 @@ export interface ParameterPosition {
 }
 
 export interface LanguageDriver {
-    getParameterName(editor: vscode.TextEditor, position: vscode.Position, key: number, namedValue?: string): any
-    parse(code: string): ParameterPosition[]
+    getParameterNameList(editor: vscode.TextEditor, languageParameters: ParameterPosition[]): Promise<(string | undefined)[]>
+    parse(code: string): ParameterPosition[][]
 }
 
 export function removeShebang(sourceCode: string): string {

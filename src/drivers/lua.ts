@@ -3,11 +3,15 @@ import { removeShebang, ParameterPosition } from '../utils'
 
 const parser = require('luaparse')
 
-export function getParameterName(editor: vscode.TextEditor, position: vscode.Position, key: number, namedValue?: string) {
+export function getParameterNameList(editor: vscode.TextEditor, languageParameters: ParameterPosition[]): Promise<string[]> {
     return new Promise(async (resolve, reject) => {
         let definition: string = ''
         let definitions: string[]
-        const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, position)
+        const firstParameter = languageParameters[0]
+        const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, new vscode.Position(
+            firstParameter.expression.line,
+            firstParameter.expression.character
+        ))
         const shouldHideRedundantAnnotations = vscode.workspace.getConfiguration('inline-parameters').get('hideRedundantAnnotations')
         const luaParameterNameRegex = /^[a-zA-Z_]([0-9a-zA-Z_]+)?/g
     
@@ -42,31 +46,40 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
             })
             .filter(parameter => parameter)
 
-        if (!parameters || !parameters[key]) {
-            return reject()
-        }
+        parameters.filter((param, index) => {
+            const parameter = languageParameters[index];
+            if (parameter === undefined) return false;
+            const key = parameter.key;
+            const namedValue = parameter.namedValue;
 
-        let name = parameters[key]
+            if (!parameters || !parameters[key]) {
+                return false
+            }
 
-        if (shouldHideRedundantAnnotations && name === namedValue) {
-            return reject()
-        }
+            let name = parameters[key]
 
-        return resolve(name)
+            if (shouldHideRedundantAnnotations && name === namedValue) {
+                return false
+            }
+
+            return true
+        })
+
+        return resolve(parameters);
     })
 }
 
-export function parse(code: string): ParameterPosition[] {
+export function parse(code: string): ParameterPosition[][] {
     code = removeShebang(code)
     const ast: any = parser.parse(code, {
         comments: false,
         locations: true,
     })
     const functionCalls: any[] = crawlAst(ast)
-    let parameters: ParameterPosition[] = []
+    let parameters: ParameterPosition[][] = []
 
     functionCalls.forEach((expression) => {
-        parameters = getParametersFromExpression(expression, parameters)
+        parameters.push(getParametersFromExpression(expression))
     })
 
     return parameters
@@ -94,10 +107,12 @@ function crawlAst(ast, functionCalls = []) {
     return functionCalls
 }
 
-function getParametersFromExpression(expression: any, parameters: ParameterPosition[] = []): ParameterPosition[] {
+function getParametersFromExpression(expression: any): ParameterPosition[] | undefined {
     if (!expression.arguments) {
-        return parameters
+        return undefined;
     }
+
+    let parameters = [];
 
     expression.arguments.forEach((argument: any, key: number) => {
         parameters.push({
