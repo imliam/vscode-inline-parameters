@@ -5,6 +5,7 @@ import * as javascriptDriver from './drivers/javascript'
 import * as javascriptReactDriver from './drivers/javascriptreact'
 import * as typescriptDriver from './drivers/typescript'
 import * as typescriptReactDriver from './drivers/typescriptreact'
+import * as javaDriver from './drivers/java'
 import { Annotations } from './annotationProvider'
 import Commands from './commands'
 import { LanguageDriver, ParameterPosition } from './utils'
@@ -108,6 +109,7 @@ export function activate(context: vscode.ExtensionContext) {
         javascriptreact: javascriptReactDriver,
         typescript: typescriptDriver,
         typescriptreact: typescriptReactDriver,
+        java: javaDriver,
     }
 
     let timeout: NodeJS.Timer | undefined = undefined
