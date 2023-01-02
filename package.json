@@ -157,7 +157,8 @@
       {
         "command": "inline-parameters.toggle",
         "key": "ctrl+k a",
-        "mac": "cmd+k a"
+        "mac": "cmd+k a",
+        "when": "editorFocus"
       }
     ]
   },
