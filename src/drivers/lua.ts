@@ -10,7 +10,7 @@ export function getParameterName(editor: vscode.TextEditor, position: vscode.Pos
         const description: any = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', editor.document.uri, position)
         const shouldHideRedundantAnnotations = vscode.workspace.getConfiguration('inline-parameters').get('hideRedundantAnnotations')
         const luaParameterNameRegex = /^[a-zA-Z_]([0-9a-zA-Z_]+)?/g
-    
+
         if (description && description.length > 0) {
             try {
                 const regEx = /^function\ .*\((.*)\)/gm
@@ -98,7 +98,8 @@ function getParametersFromExpression(expression: any, parameters: ParameterPosit
     if (!expression.arguments) {
         return parameters
     }
-
+    
+    const hasSelfCall = expression.base.indexer == ':';
     expression.arguments.forEach((argument: any, key: number) => {
         parameters.push({
             namedValue: argument.name ?? null,
@@ -106,7 +107,7 @@ function getParametersFromExpression(expression: any, parameters: ParameterPosit
                 line: parseInt(expression.base.identifier.loc.start.line) - 1,
                 character: parseInt(expression.base.identifier.loc.start.column),
             },
-            key: key,
+            key: hasSelfCall ? key + 1 : key,
             start: {
                 line: parseInt(argument.loc.start.line) - 1,
                 character: parseInt(argument.loc.start.column),
