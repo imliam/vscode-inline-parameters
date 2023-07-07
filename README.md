@@ -73,8 +73,8 @@ You can change the default foreground and background colours in the `workbench.c
 
 | Name | Description |
 |------|-------------|
-| `inlineparameters.annotationForeground` | Specifies the foreground colour for the annotations |
-| `inlineparameters.annotationBackground` | Specifies the background colour for the annotations |
+| `inlineParameters.annotationForeground` | Specifies the foreground colour for the annotations |
+| `inlineParameters.annotationBackground` | Specifies the background colour for the annotations |
 
 ## Commands
 

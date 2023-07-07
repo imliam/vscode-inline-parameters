@@ -16,8 +16,8 @@ export class Annotations {
             renderOptions: {
                 before: {
                     contentText: message,
-                    color: new ThemeColor("inlineparameters.annotationForeground"),
-                    backgroundColor: new ThemeColor("inlineparameters.annotationBackground"),
+                    color: new ThemeColor("inlineParameters.annotationForeground"),
+                    backgroundColor: new ThemeColor("inlineParameters.annotationBackground"),
                     fontStyle: workspace.getConfiguration("inline-parameters").get("fontStyle"),
                     fontWeight: workspace.getConfiguration("inline-parameters").get("fontWeight"),
                     textDecoration: `;

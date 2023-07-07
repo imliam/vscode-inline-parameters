@@ -135,7 +135,7 @@
     ],
     "colors": [
       {
-        "id": "inlineparameters.annotationForeground",
+        "id": "inlineParameters.annotationForeground",
         "description": "Specifies the foreground color for the annotations",
         "defaults": {
           "dark": "#adbec5",
@@ -144,7 +144,7 @@
         }
       },
       {
-        "id": "inlineparameters.annotationBackground",
+        "id": "inlineParameters.annotationBackground",
         "description": "Specifies the background color for the annotations",
         "defaults": {
           "dark": "#1e2c31",
